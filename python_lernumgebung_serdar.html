@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Python Lernumgebung – Schritt für Schritt</title>
+  <style>
+    :root{
+      --bg:#f6f7fb;
+      --panel:#ffffff;
+      --text:#1d2433;
+      --muted:#5c667a;
+      --line:#dfe3ec;
+      --primary:#335cff;
+      --primary-dark:#2140b8;
+      --soft:#edf1ff;
+      --success:#12805c;
+      --warn:#9b5c00;
+      --danger:#b42318;
+      --code:#111827;
+      --code2:#0f172a;
+      --radius:18px;
+      --shadow:0 16px 45px rgba(20,30,55,.10);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background:radial-gradient(circle at top left,#e9efff 0,#f6f7fb 36%,#f6f7fb 100%);
+      color:var(--text);
+      line-height:1.55;
+    }
+    button,input,textarea,select{font:inherit}
+    a{color:inherit}
+    .app{display:grid;grid-template-columns:310px minmax(0,1fr);min-height:100vh}
+    aside{
+      position:sticky;top:0;height:100vh;overflow:auto;
+      padding:22px 18px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);
+      border-right:1px solid var(--line);
+    }
+    main{padding:28px;max-width:1200px;width:100%;margin:0 auto}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:18px}
+    .logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--primary),#8d5cff);display:grid;place-items:center;color:white;font-weight:900;box-shadow:var(--shadow)}
+    .brand h1{font-size:1.05rem;margin:0;line-height:1.15}
+    .brand p{margin:2px 0 0;color:var(--muted);font-size:.86rem}
+    .progressBox{background:var(--soft);border:1px solid #d7defd;border-radius:16px;padding:14px;margin:16px 0}
+    .progressLabel{display:flex;justify-content:space-between;font-size:.86rem;color:var(--muted);gap:8px;margin-bottom:8px}
+    .bar{height:12px;background:white;border-radius:999px;overflow:hidden;border:1px solid #dbe1f3}
+    .bar span{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),#8d5cff);border-radius:inherit;transition:.35s ease}
+    .nav{display:grid;gap:7px;margin-top:18px}
+    .nav button{border:1px solid transparent;background:transparent;text-align:left;border-radius:14px;padding:10px 12px;cursor:pointer;color:var(--muted);display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center}
+    .nav button:hover{background:#f1f4ff;color:var(--text)}
+    .nav button.active{background:#edf1ff;border-color:#cad4ff;color:var(--primary-dark);font-weight:700}
+    .nav .num{width:28px;height:28px;border-radius:9px;background:white;border:1px solid var(--line);display:grid;place-items:center;font-size:.78rem;color:var(--muted);font-weight:800}
+    .nav button.done .num{background:#e8f7f1;color:var(--success);border-color:#b7ead8}
+    .nav .tick{font-size:.85rem;color:var(--success);opacity:0}.nav button.done .tick{opacity:1}
+    .mobileTop{display:none;position:sticky;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 14px;gap:10px;align-items:center}
+    .hamb{border:1px solid var(--line);background:#fff;border-radius:12px;padding:9px 12px;cursor:pointer}
+    .hero{background:linear-gradient(135deg,#ffffff,#eef2ff);border:1px solid #dfe5ff;border-radius:26px;padding:30px;box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:26px;align-items:center;margin-bottom:24px}
+    .hero h2{font-size:clamp(2rem,4vw,3.4rem);line-height:1.03;margin:0 0 14px;letter-spacing:-.04em}
+    .hero p{font-size:1.08rem;color:var(--muted);margin:0 0 18px}
+    .heroActions{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+    .btn{border:0;background:var(--primary);color:white;border-radius:14px;padding:11px 15px;cursor:pointer;font-weight:800;box-shadow:0 8px 18px rgba(51,92,255,.18)}
+    .btn:hover{background:var(--primary-dark)}
+    .btn.secondary{background:white;color:var(--text);border:1px solid var(--line);box-shadow:none}.btn.secondary:hover{background:#f7f8fc}
+    .btn.ghost{background:transparent;color:var(--primary-dark);box-shadow:none;border:1px solid #cfd8ff}.btn.ghost:hover{background:#edf1ff}
+    .terminalMock{background:var(--code);color:#d1d5db;border-radius:22px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.20);border:1px solid rgba(255,255,255,.09)}
+    .termTop{display:flex;gap:7px;align-items:center;background:#0b1220;padding:11px 14px;color:#8ea2c5;font-size:.82rem}.dot{width:11px;height:11px;border-radius:50%;background:#ef4444}.dot:nth-child(2){background:#f59e0b}.dot:nth-child(3){background:#22c55e}.termBody{padding:18px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:.92rem;min-height:210px}.prompt{color:#93c5fd}.green{color:#86efac}.purple{color:#c4b5fd}.yellow{color:#fde68a}
+    .module{display:none;animation:fade .18s ease}.module.active{display:block}@keyframes fade{from{opacity:.3;transform:translateY(4px)}to{opacity:1;transform:none}}
+    .card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow);margin:18px 0}
+    .card h3{margin:0 0 10px;font-size:1.55rem;letter-spacing:-.02em}.card h4{margin:20px 0 8px;font-size:1.08rem}.muted{color:var(--muted)}
+    .pillrow{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.pill{background:#f1f4ff;border:1px solid #dbe2ff;color:#243b8f;border-radius:999px;padding:6px 10px;font-size:.85rem;font-weight:700}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .mini{border:1px solid var(--line);border-radius:18px;padding:15px;background:#fbfcff}.mini strong{display:block;margin-bottom:5px}
+    pre{background:var(--code2);color:#e5e7eb;border-radius:16px;padding:16px;overflow:auto;font-size:.92rem;line-height:1.5;border:1px solid rgba(255,255,255,.08)}
+    code{font-family:"SFMono-Regular",Consolas,Menlo,monospace}.inlinecode{background:#eef2ff;color:#1f3998;border-radius:7px;padding:2px 6px;font-size:.92em}
+    .coach{border-left:5px solid var(--primary);background:#f3f6ff;border-radius:18px;padding:15px;margin:14px 0;color:#273250}.coach b{color:#172554}
+    .warning{border-left-color:#f59e0b;background:#fff7ed}.success{border-left-color:#10b981;background:#ecfdf5}.danger{border-left-color:#ef4444;background:#fef2f2}
+    .exercise{border:1px solid #d7dded;background:#fbfcff;border-radius:22px;padding:18px;margin:16px 0}.exercise h4{margin-top:0}.exerciseTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}.badge{border-radius:999px;padding:5px 9px;font-size:.78rem;font-weight:900;background:#eef2ff;color:#2643a0;border:1px solid #d4ddff}.badge.easy{background:#ecfdf5;color:#056047;border-color:#b7ead8}.badge.med{background:#fff7ed;color:#914100;border-color:#ffd9a3}.badge.hard{background:#fef2f2;color:#9f1b1b;border-color:#ffc9c9}
+    textarea.editor{width:100%;min-height:170px;background:#101827;color:#e5e7eb;border:0;border-radius:16px;padding:14px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:.93rem;line-height:1.45;resize:vertical;outline:none;tab-size:4}.editor:focus{box-shadow:0 0 0 3px rgba(51,92,255,.28)}
+    .output{background:#050816;color:#d1fae5;border-radius:14px;min-height:70px;padding:13px;white-space:pre-wrap;font-family:"SFMono-Regular",Consolas,Menlo,monospace;margin-top:10px;border:1px solid #18223a}.exerciseActions{display:flex;flex-wrap:wrap;gap:9px;margin-top:10px}.small{font-size:.9rem}.hidden{display:none!important}
+    .quiz{display:grid;gap:8px;margin-top:10px}.quiz button{border:1px solid var(--line);background:white;border-radius:14px;padding:11px;text-align:left;cursor:pointer}.quiz button:hover{background:#f7f8fc}.quiz button.correct{border-color:#86efac;background:#ecfdf5}.quiz button.wrong{border-color:#fca5a5;background:#fef2f2}
+    .checklist{display:grid;gap:9px;margin:12px 0}.checklist label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:#fff;cursor:pointer}.checklist input{margin-top:4px;transform:scale(1.15)}
+    .gameBox{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,.8fr);gap:18px}.gamePanel{background:#0f172a;color:#e5e7eb;border-radius:20px;padding:18px}.gamePanel input{width:100%;padding:12px;border-radius:12px;border:1px solid #334155;background:#111827;color:#fff}.gameLog{height:230px;overflow:auto;background:#050816;border-radius:14px;padding:12px;margin-top:12px;white-space:pre-wrap;font-family:"SFMono-Regular",Consolas,Menlo,monospace}.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:999}.piece{position:absolute;width:9px;height:14px;background:var(--primary);opacity:.8;animation:fall 1.2s linear forwards}@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:0}}
+    details{background:#fbfcff;border:1px solid var(--line);border-radius:15px;padding:12px 14px;margin:10px 0}summary{cursor:pointer;font-weight:800}.footerNav{display:flex;justify-content:space-between;gap:10px;margin:26px 0 60px}.kbd{font-family:"SFMono-Regular",Consolas,monospace;background:#fff;border:1px solid #ccd3e1;border-bottom-width:3px;border-radius:8px;padding:1px 7px;color:#1d2433}
+    .certificate{background:linear-gradient(135deg,#fff,#f1f4ff);border:2px dashed #b9c6ff;border-radius:24px;padding:24px;text-align:center}.certificate h3{font-size:2rem}.nameInput{max-width:360px;width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:14px;margin:10px 0;background:white}
+    .printOnly{display:none}
+    @media(max-width:950px){.app{display:block}aside{position:fixed;z-index:50;left:-330px;width:310px;transition:.2s ease;box-shadow:var(--shadow)}aside.open{left:0}.mobileTop{display:flex}.hero{grid-template-columns:1fr}.grid2,.grid3,.gameBox{grid-template-columns:1fr}main{padding:16px}.card{padding:18px}.hero{padding:22px}}
+    @media print{aside,.mobileTop,.heroActions,.footerNav,.exerciseActions,.btn,.nav,.gamePanel{display:none!important}main{max-width:none;padding:0}.module{display:block!important;page-break-inside:avoid}.card{box-shadow:none;border-color:#aaa}.printOnly{display:block}}
+  </style>
+</head>
+<body>
+  <div class="mobileTop">
+    <button class="hamb" id="hamb">☰ Lernpfad</button>
+    <strong>Python Grundlagen</strong>
+  </div>
+  <div class="app">
+    <aside id="side">
+      <div class="brand">
+        <div class="logo">Py</div>
+        <div>
+          <h1>Python Lernumgebung</h1>
+          <p>Schritt für Schritt bis zum Spiel</p>
+        </div>
+      </div>
+      <div class="progressBox">
+        <div class="progressLabel"><span>Fortschritt</span><strong id="progressText">0%</strong></div>
+        <div class="bar"><span id="progressBar"></span></div>
+        <p class="small muted" style="margin:10px 0 0">Häkchen erscheinen, wenn du ein Modul als erledigt markierst.</p>
+      </div>
+      <div class="nav" id="nav"></div>
+      <div class="card" style="box-shadow:none;padding:14px;border-radius:16px;margin-top:18px">
+        <strong>Hinweis</strong>
+        <p class="small muted" style="margin:6px 0 0">Diese Datei läuft offline. Sie simuliert einfache Ausgaben, ersetzt aber keinen echten Python-Interpreter.</p>
+      </div>
+    </aside>
+
+    <main>
+      <section class="hero">
+        <div>
+          <h2>Python lernen, ohne dich zu verlieren.</h2>
+          <p>Du wirst Schritt für Schritt geführt: erst Denken wie ein Programmierer, dann Variablen, Bedingungen, Schleifen, Listen, Funktionen und am Ende ein kleines Zahlenratespiel.</p>
+          <div class="pillrow">
+            <span class="pill">offline nutzbar</span>
+            <span class="pill">tabletfreundlich</span>
+            <span class="pill">mit Aufgaben</span>
+            <span class="pill">Abschlussprojekt</span>
+          </div>
+          <div class="heroActions">
+            <button class="btn" onclick="goTo(1)">Lernpfad starten</button>
+            <button class="btn secondary" onclick="goTo(8)">Direkt zum Spiel</button>
+            <button class="btn ghost" onclick="window.print()">Als Lernskript drucken</button>
+          </div>
+        </div>
+        <div class="terminalMock" aria-label="Terminal Beispiel">
+          <div class="termTop"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span>python-grundlagen.py</span></div>
+          <div class="termBody">
+            <span class="prompt">&gt;&gt;&gt;</span> <span class="purple">name</span> = <span class="yellow">"Serdar"</span><br>
+            <span class="prompt">&gt;&gt;&gt;</span> <span class="purple">punkte</span> = 0<br>
+            <span class="prompt">&gt;&gt;&gt;</span> <span class="purple">punkte</span> += 10<br>
+            <span class="prompt">&gt;&gt;&gt;</span> print(<span class="yellow">"Level geschafft!"</span>)<br>
+            <span class="green">Level geschafft!</span><br><br>
+            <span class="muted"># Ziel: Du programmierst bald selbst ein Mini-Spiel.</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="m0" class="module active"></section>
+      <section id="m1" class="module"></section>
+      <section id="m2" class="module"></section>
+      <section id="m3" class="module"></section>
+      <section id="m4" class="module"></section>
+      <section id="m5" class="module"></section>
+      <section id="m6" class="module"></section>
+      <section id="m7" class="module"></section>
+      <section id="m8" class="module"></section>
+
+      <div class="footerNav">
+        <button class="btn secondary" onclick="prevModule()">← Zurück</button>
+        <button class="btn" onclick="nextModule()">Weiter →</button>
+      </div>
+    </main>
+  </div>
+  <div class="confetti" id="confetti"></div>
+
+<script>
+const modules = [
+  {id:0,title:"Orientierung", short:"Wie du lernst"},
+  {id:1,title:"Ausgabe & Kommentare", short:"print()"},
+  {id:2,title:"Variablen & Datentypen", short:"Werte speichern"},
+  {id:3,title:"Eingaben", short:"input()"},
+  {id:4,title:"Bedingungen", short:"if / else"},
+  {id:5,title:"Schleifen", short:"Wiederholen"},
+  {id:6,title:"Listen", short:"Mehrere Werte"},
+  {id:7,title:"Funktionen", short:"Bausteine"},
+  {id:8,title:"Abschlussprojekt", short:"Mini-Spiel"},
+];
+let current = Number(localStorage.getItem("py_current") || 0);
+let done = JSON.parse(localStorage.getItem("py_done") || "[]");
+function save(){localStorage.setItem("py_current",current);localStorage.setItem("py_done",JSON.stringify(done));}
+function qs(id){return document.getElementById(id)}
+function htmlEscape(str){return str.replace(/[&<>]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]));}
+function navRender(){
+  const nav = qs('nav'); nav.innerHTML='';
+  modules.forEach(m=>{
+    const b=document.createElement('button');
+    b.className=(current===m.id?'active ':'')+(done.includes(m.id)?'done':'');
+    b.innerHTML=`<span class="num">${m.id}</span><span><strong>${m.title}</strong><br><small>${m.short}</small></span><span class="tick">✓</span>`;
+    b.onclick=()=>goTo(m.id);
+    nav.appendChild(b);
+  });
+  const pct=Math.round((done.length/modules.length)*100);
+  qs('progressText').textContent=pct+'%'; qs('progressBar').style.width=pct+'%';
+}
+function goTo(id){
+  current=id; save();
+  document.querySelectorAll('.module').forEach(s=>s.classList.remove('active'));
+  qs('m'+id).classList.add('active');
+  navRender();
+  qs('side').classList.remove('open');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function nextModule(){goTo(Math.min(modules.length-1,current+1))}
+function prevModule(){goTo(Math.max(0,current-1))}
+function markDone(id=current){if(!done.includes(id)){done.push(id);done.sort((a,b)=>a-b);save();navRender();popConfetti();}}
+function resetProgress(){if(confirm('Fortschritt wirklich zurücksetzen?')){done=[];current=0;save();goTo(0)}}
+function reveal(id){qs(id).classList.toggle('hidden')}
+function popConfetti(){
+ const box=qs('confetti'); box.innerHTML='';
+ for(let i=0;i<70;i++){const p=document.createElement('span');p.className='piece';p.style.left=Math.random()*100+'%';p.style.top='-20px';p.style.animationDelay=(Math.random()*0.3)+'s';p.style.background=`hsl(${Math.random()*360},80%,60%)`;box.appendChild(p)}
+ setTimeout(()=>box.innerHTML='',1500)
+}
+qs('hamb').onclick=()=>qs('side').classList.toggle('open');
+
+function checkContains(text, requirements){
+  const missing=[];
+  requirements.forEach(r=>{ if(r.type==='contains' && !text.includes(r.value)) missing.push(r.msg); if(r.type==='regex' && !r.value.test(text)) missing.push(r.msg); });
+  return missing;
+}
+function simulatePrints(code){
+  const lines=code.split('\n'); const out=[];
+  for(const raw of lines){
+    const line=raw.trim();
+    if(line.startsWith('#')||!line) continue;
+    const m=line.match(/^print\((.*)\)$/);
+    if(m){
+      let inner=m[1].trim();
+      if((inner.startsWith('"')&&inner.endsWith('"'))||(inner.startsWith("'")&&inner.endsWith("'"))){out.push(inner.slice(1,-1));}
+      else if(/^\d+(\s*[+\-*/]\s*\d+)+$/.test(inner)){try{out.push(String(Function('return '+inner)()))}catch(e){out.push('[konnte Ausdruck nicht berechnen]')}}
+      else out.push('[Ausgabe hängt von Variablen/Eingaben ab: '+inner+']');
+    }
+  }
+  return out.length?out.join('\n'):'Keine simulierte Ausgabe erkannt. Tipp: Nutze print("Text") oder print(2+3).';
+}
+function runExercise(id, reqs, successMsg){
+  const code=qs('code_'+id).value; const out=qs('out_'+id);
+  const missing=checkContains(code,reqs);
+  if(missing.length){out.textContent='Noch nicht ganz. Prüfe:\n- '+missing.join('\n- ')+'\n\nSimulierte Ausgabe:\n'+simulatePrints(code);out.style.borderColor='#7f1d1d';}
+  else{out.textContent='Sehr gut! '+successMsg+'\n\nSimulierte Ausgabe:\n'+simulatePrints(code);out.style.borderColor='#14532d';}
+}
+function copyText(id){navigator.clipboard.writeText(qs(id).innerText).then(()=>alert('Kopiert.'))}
+function quiz(btn, correct, msg){
+  const parent=btn.parentElement; [...parent.children].forEach(b=>b.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const p=document.createElement('p'); p.className='small '+(correct?'success':'danger'); p.textContent=msg; parent.appendChild(p);
+}
+function starterCode(txt){return txt.replace(/^\n/,'')}
+
+function moduleWrap(id, inner){
+  return `<div class="card"><div class="exerciseTop"><div><h3>${modules[id].title}</h3><p class="muted">${modules[id].short}</p></div><button class="btn secondary" onclick="markDone(${id})">Modul erledigt ✓</button></div>${inner}</div>`;
+}
+function exerciseHTML(id, level, title, task, starter, reqsLiteral, successMsg, hint, solution){
+  return `<div class="exercise"><div class="exerciseTop"><h4>${title}</h4><span class="badge ${level==='leicht'?'easy':level==='mittel'?'med':'hard'}">${level}</span></div><p>${task}</p><textarea id="code_${id}" class="editor" spellcheck="false">${htmlEscape(starter)}</textarea><div class="exerciseActions"><button class="btn" onclick="runExercise('${id}', ${reqsLiteral}, '${successMsg.replace(/'/g,"\\'")}')">Prüfen / simulieren</button><button class="btn secondary" onclick="reveal('hint_${id}')">Hinweis</button><button class="btn ghost" onclick="reveal('sol_${id}')">Lösung</button></div><div id="out_${id}" class="output">Noch nicht ausgeführt.</div><div id="hint_${id}" class="coach hidden"><b>Hinweis:</b> ${hint}</div><pre id="sol_${id}" class="hidden"><code>${htmlEscape(solution)}</code></pre></div>`;
+}
+
+qs('m0').innerHTML = moduleWrap(0, `
+  <div class="coach"><b>So nutzt du diese Lernumgebung:</b> Lies nicht nur. Tippe Code ab, verändere ihn, mache absichtlich Fehler und beobachte, was passiert. Genau dadurch entsteht echtes Verständnis.</div>
+  <div class="grid3">
+    <div class="mini"><strong>1. Verstehen</strong><span class="muted">Jedes Modul erklärt nur eine neue Idee.</span></div>
+    <div class="mini"><strong>2. Anwenden</strong><span class="muted">Du löst kleine Aufgaben direkt im Übungsfeld.</span></div>
+    <div class="mini"><strong>3. Bauen</strong><span class="muted">Am Ende entsteht ein eigenes Mini-Spiel.</span></div>
+  </div>
+  <h4>Was ist Python?</h4>
+  <p>Python ist eine Programmiersprache, die bewusst gut lesbar ist. Sie eignet sich sehr gut für Einsteiger, aber auch für echte Anwendungen: Automatisierung, Datenanalyse, Webseiten, KI, kleine Spiele und vieles mehr.</p>
+  <div class="grid2">
+    <div>
+      <h4>Wichtiges Grundprinzip</h4>
+      <p>Ein Programm ist eine Folge von Anweisungen. Der Computer führt sie sehr genau aus. Er „denkt“ nicht mit. Deshalb müssen wir unsere Gedanken in klare Schritte übersetzen.</p>
+      <pre><code># Menschlicher Gedanke:
+# Begrüße die Person und zeige Punkte an.
+
+name = "Serdar"
+punkte = 10
+print("Hallo", name)
+print("Punkte:", punkte)</code></pre>
+    </div>
+    <div>
+      <h4>Arbeitsweise</h4>
+      <ol>
+        <li>Du formulierst ein kleines Ziel.</li>
+        <li>Du zerlegst das Ziel in Einzelschritte.</li>
+        <li>Du schreibst Code.</li>
+        <li>Du testest und verbesserst.</li>
+      </ol>
+      <div class="coach warning"><b>Merke:</b> Fehler sind beim Programmieren kein Zeichen von Scheitern. Sie sind Rückmeldungen des Systems.</div>
+    </div>
+  </div>
+  <h4>Mini-Check</h4>
+  <div class="quiz">
+    <button onclick="quiz(this,false,'Fast. Python kann zwar sehr mächtig sein, aber der Computer führt nur deine Anweisungen aus.')">Python versteht automatisch, was ich meine.</button>
+    <button onclick="quiz(this,true,'Genau. Programmieren bedeutet, Gedanken in eindeutige Schritte zu übersetzen.')">Python führt klare Anweisungen Schritt für Schritt aus.</button>
+    <button onclick="quiz(this,false,'Nicht ganz. Python ist nicht nur für Spiele, sondern für sehr viele Bereiche geeignet.')">Python ist nur für Spiele gedacht.</button>
+  </div>
+  <div class="exerciseActions"><button class="btn" onclick="goTo(1)">Mit Modul 1 beginnen →</button><button class="btn secondary" onclick="resetProgress()">Fortschritt zurücksetzen</button></div>
+`);
+
+qs('m1').innerHTML = moduleWrap(1, `
+  <p>Mit <span class="inlinecode">print()</span> gibst du Text oder Ergebnisse aus. Kommentare beginnen mit <span class="inlinecode">#</span>. Python ignoriert Kommentare beim Ausführen.</p>
+  <pre><code>print("Hallo Welt")
+print(3 + 4)
+# Das ist ein Kommentar</code></pre>
+  <div class="coach"><b>Sprachgefühl:</b> Klammern sagen: „Führe diese Funktion aus.“ Anführungszeichen sagen: „Das ist Text.“ Ohne Anführungszeichen versucht Python, etwas zu berechnen oder als Namen zu verstehen.</div>
+  ${exerciseHTML('1a','leicht','Aufgabe 1: Deine erste Ausgabe','Schreibe ein Programm, das deinen Namen und danach einen kurzen Satz ausgibt.', 'print("Mein Name ist ...")\nprint("Ich lerne Python Schritt für Schritt.")', `[{type:'contains',value:'print',msg:'Nutze mindestens einmal print().'},{type:'regex',value:/print\(["'][^"']+["']\)/,msg:'Gib mindestens einen Text in Anführungszeichen aus.'}]`, 'Du hast eine echte Ausgabe-Anweisung geschrieben.', 'Eine Textausgabe sieht so aus: <span class="inlinecode">print("Hallo")</span>.', 'print("Mein Name ist Serdar")\nprint("Ich lerne Python Schritt für Schritt.")')}
+  <h4>Typische Fehler</h4>
+  <div class="grid2">
+    <div class="mini"><strong>Klammer vergessen</strong><pre><code>print("Hallo"</code></pre></div>
+    <div class="mini"><strong>Anführungszeichen vergessen</strong><pre><code>print(Hallo)</code></pre></div>
+  </div>
+`);
+
+qs('m2').innerHTML = moduleWrap(2, `
+  <p>Variablen sind Namen für Werte. Du kannst dir eine Variable wie eine beschriftete Box vorstellen.</p>
+  <pre><code>name = "Alia"
+alter = 4
+punkte = 0
+punkte = punkte + 10
+print(punkte)</code></pre>
+  <div class="grid3">
+    <div class="mini"><strong>str</strong><span class="muted">Text, z. B. "Hallo"</span></div>
+    <div class="mini"><strong>int</strong><span class="muted">ganze Zahl, z. B. 12</span></div>
+    <div class="mini"><strong>float</strong><span class="muted">Kommazahl, z. B. 3.14</span></div>
+  </div>
+  <div class="coach warning"><b>Wichtig:</b> In Python steht links der Name der Variable, rechts der Wert. <span class="inlinecode">punkte = punkte + 1</span> bedeutet: Nimm den alten Wert von <span class="inlinecode">punkte</span>, erhöhe ihn um 1 und speichere ihn wieder.</div>
+  ${exerciseHTML('2a','leicht','Aufgabe 2: Punkte speichern','Lege eine Variable <span class="inlinecode">punkte</span> an, erhöhe sie und gib sie aus.', 'punkte = 0\npunkte = punkte + 5\nprint(punkte)', `[{type:'contains',value:'punkte',msg:'Verwende eine Variable namens punkte.'},{type:'regex',value:/punkte\s*=\s*/m,msg:'Weise punkte einen Wert zu.'},{type:'contains',value:'print',msg:'Gib den Wert mit print() aus.'}]`, 'Du verwendest eine Variable zum Speichern eines Wertes.', 'Beginne mit <span class="inlinecode">punkte = 0</span> und verändere den Wert danach.', 'punkte = 0\npunkte = punkte + 5\nprint(punkte)')}
+  <h4>Mini-Check</h4>
+  <div class="quiz">
+    <button onclick="quiz(this,false,'Nicht richtig. Variablen können verändert werden.')">Eine Variable kann nach der ersten Zuweisung nie verändert werden.</button>
+    <button onclick="quiz(this,true,'Genau. Eine Variable ist ein Name, unter dem ein Wert gespeichert wird.')">Eine Variable ist ein Name für einen gespeicherten Wert.</button>
+    <button onclick="quiz(this,false,'Nein. print() zeigt etwas an, speichert aber keinen Wert.')">print() speichert Werte dauerhaft.</button>
+  </div>
+`);
+
+qs('m3').innerHTML = moduleWrap(3, `
+  <p>Mit <span class="inlinecode">input()</span> kann dein Programm Eingaben abfragen. Achtung: <span class="inlinecode">input()</span> liefert zunächst immer Text.</p>
+  <pre><code>name = input("Wie heißt du? ")
+print("Hallo", name)
+
+alter_text = input("Wie alt bist du? ")
+alter = int(alter_text)
+print(alter + 1)</code></pre>
+  <div class="coach"><b>Warum <span class="inlinecode">int()</span>?</b> Wenn du mit einer Eingabe rechnen willst, musst du Text in eine Zahl umwandeln. Aus <span class="inlinecode">"7"</span> wird dann <span class="inlinecode">7</span>.</div>
+  ${exerciseHTML('3a','mittel','Aufgabe 3: Eine Eingabe verwenden','Frage nach einem Namen und begrüße die Person.', 'name = input("Wie heißt du? ")\nprint("Hallo", name)', `[{type:'contains',value:'input',msg:'Nutze input(), um eine Eingabe abzufragen.'},{type:'contains',value:'name',msg:'Speichere die Eingabe in einer Variable, z. B. name.'},{type:'contains',value:'print',msg:'Gib eine Begrüßung aus.'}]`, 'Du hast dein Programm interaktiv gemacht.', 'Das Muster lautet: <span class="inlinecode">variable = input("Frage")</span>.', 'name = input("Wie heißt du? ")\nprint("Hallo", name)')}
+  ${exerciseHTML('3b','mittel','Aufgabe 4: Mit Eingaben rechnen','Frage nach einer Zahl, wandle sie mit <span class="inlinecode">int()</span> um und gib das Doppelte aus.', 'zahl_text = input("Nenne eine Zahl: ")\nzahl = int(zahl_text)\nprint(zahl * 2)', `[{type:'contains',value:'input',msg:'Frage eine Eingabe ab.'},{type:'contains',value:'int',msg:'Wandle die Eingabe mit int() in eine Zahl um.'},{type:'regex',value:/\*\s*2|2\s*\*/,msg:'Verdopple die Zahl mit * 2.'}]`, 'Du hast verstanden, dass Eingaben erst umgewandelt werden müssen.', 'Eine Eingabe ist zunächst Text. Verwende <span class="inlinecode">int(eingabe)</span>.', 'zahl_text = input("Nenne eine Zahl: ")\nzahl = int(zahl_text)\nprint(zahl * 2)')}
+`);
+
+qs('m4').innerHTML = moduleWrap(4, `
+  <p>Bedingungen lassen dein Programm entscheiden. Wenn eine Aussage wahr ist, wird ein bestimmter Block ausgeführt. Sonst ein anderer.</p>
+  <pre><code>punkte = 12
+
+if punkte >= 10:
+    print("Level geschafft")
+else:
+    print("Noch üben")</code></pre>
+  <div class="coach warning"><b>Python-Besonderheit:</b> Einrückungen sind wichtig. Alles, was zu <span class="inlinecode">if</span> gehört, wird eingerückt. Meist nutzt man 4 Leerzeichen.</div>
+  <div class="grid3">
+    <div class="mini"><strong>==</strong><span class="muted">ist gleich</span></div>
+    <div class="mini"><strong>!=</strong><span class="muted">ist ungleich</span></div>
+    <div class="mini"><strong>&gt;=</strong><span class="muted">größer oder gleich</span></div>
+  </div>
+  ${exerciseHTML('4a','mittel','Aufgabe 5: Passwort prüfen','Lege eine Variable <span class="inlinecode">passwort</span> an. Wenn sie <span class="inlinecode">"python"</span> ist, soll „Zugang erlaubt“ ausgegeben werden, sonst „Zugang verweigert“.', 'passwort = "python"\n\nif passwort == "python":\n    print("Zugang erlaubt")\nelse:\n    print("Zugang verweigert")', `[{type:'contains',value:'if',msg:'Nutze eine if-Bedingung.'},{type:'contains',value:'else',msg:'Nutze einen else-Zweig.'},{type:'contains',value:'==',msg:'Vergleiche mit ==, nicht mit =.'},{type:'contains',value:'python',msg:'Prüfe auf das Passwort "python".'}]`, 'Du hast eine Entscheidung programmiert.', 'Vergleichen geht mit <span class="inlinecode">==</span>. Zuweisen geht mit <span class="inlinecode">=</span>.', 'passwort = "python"\n\nif passwort == "python":\n    print("Zugang erlaubt")\nelse:\n    print("Zugang verweigert")')}
+  <h4>Denkfrage</h4>
+  <div class="quiz">
+    <button onclick="quiz(this,false,'= weist einen Wert zu. Für Vergleiche brauchst du ==.')">if passwort = "python":</button>
+    <button onclick="quiz(this,true,'Genau. == vergleicht zwei Werte.')">if passwort == "python":</button>
+    <button onclick="quiz(this,false,'Das ist zwar Text, aber keine Bedingung.')">if "passwort python":</button>
+  </div>
+`);
+
+qs('m5').innerHTML = moduleWrap(5, `
+  <p>Schleifen wiederholen Anweisungen. Mit <span class="inlinecode">for</span> wiederholst du häufig eine bekannte Anzahl. Mit <span class="inlinecode">while</span> wiederholst du, solange eine Bedingung wahr ist.</p>
+  <div class="grid2">
+    <div><h4>for-Schleife</h4><pre><code>for zahl in range(5):
+    print(zahl)</code></pre><p class="small muted">Gibt 0, 1, 2, 3, 4 aus.</p></div>
+    <div><h4>while-Schleife</h4><pre><code>leben = 3
+while leben > 0:
+    print("Noch im Spiel")
+    leben = leben - 1</code></pre></div>
+  </div>
+  <div class="coach danger"><b>Aufpassen:</b> Eine <span class="inlinecode">while</span>-Schleife braucht eine Veränderung. Sonst läuft sie endlos.</div>
+  ${exerciseHTML('5a','mittel','Aufgabe 6: Countdown','Schreibe mit einer Schleife einen Countdown von 5 bis 1 und gib danach „Start!“ aus.', 'for zahl in range(5, 0, -1):\n    print(zahl)\nprint("Start!")', `[{type:'contains',value:'for',msg:'Nutze eine for-Schleife.'},{type:'contains',value:'range',msg:'Nutze range().'},{type:'contains',value:'print',msg:'Gib die Zahlen aus.'}]`, 'Du kannst Wiederholungen mit einer Schleife ausdrücken.', 'Für rückwärts zählen eignet sich <span class="inlinecode">range(5, 0, -1)</span>.', 'for zahl in range(5, 0, -1):\n    print(zahl)\nprint("Start!")')}
+  ${exerciseHTML('5b','schwer','Aufgabe 7: Erste Spiel-Schleife','Erstelle eine Variable <span class="inlinecode">versuche</span> und lasse eine while-Schleife laufen, solange noch Versuche übrig sind.', 'versuche = 3\n\nwhile versuche > 0:\n    print("Du hast noch", versuche, "Versuche")\n    versuche = versuche - 1', `[{type:'contains',value:'while',msg:'Nutze eine while-Schleife.'},{type:'contains',value:'versuche',msg:'Verwende eine Variable versuche.'},{type:'regex',value:/versuche\s*=\s*versuche\s*-\s*1|versuche\s*-=/,msg:'Verringere die Anzahl der Versuche.'}]`, 'Das ist bereits ein Kernbaustein für dein Spiel.', 'Die Schleife muss irgendwann enden. Verringere <span class="inlinecode">versuche</span> in der Schleife.', 'versuche = 3\n\nwhile versuche > 0:\n    print("Du hast noch", versuche, "Versuche")\n    versuche = versuche - 1')}
+`);
+
+qs('m6').innerHTML = moduleWrap(6, `
+  <p>Listen speichern mehrere Werte in einer Reihenfolge. Du erkennst sie an eckigen Klammern.</p>
+  <pre><code>inventar = ["Schlüssel", "Münze", "Trank"]
+print(inventar[0])       # erstes Element
+inventar.append("Karte")
+print(len(inventar))     # Länge der Liste</code></pre>
+  <div class="coach"><b>Wichtig:</b> Python zählt bei Listen ab 0. Das erste Element hat also den Index 0.</div>
+  <div class="grid3">
+    <div class="mini"><strong>liste[0]</strong><span class="muted">erstes Element</span></div>
+    <div class="mini"><strong>append()</strong><span class="muted">etwas anhängen</span></div>
+    <div class="mini"><strong>len()</strong><span class="muted">Anzahl der Elemente</span></div>
+  </div>
+  ${exerciseHTML('6a','mittel','Aufgabe 8: Inventar','Erstelle eine Liste <span class="inlinecode">inventar</span> mit drei Gegenständen. Hänge einen weiteren Gegenstand an und gib die Liste aus.', 'inventar = ["Schlüssel", "Münze", "Trank"]\ninventar.append("Karte")\nprint(inventar)', `[{type:'contains',value:'[',msg:'Erstelle eine Liste mit eckigen Klammern.'},{type:'contains',value:'append',msg:'Hänge mit append() etwas an.'},{type:'contains',value:'inventar',msg:'Nenne die Liste inventar.'}]`, 'Du kannst mehrere Werte in einer Liste verwalten.', 'Eine Liste sieht so aus: <span class="inlinecode">["A", "B", "C"]</span>.', 'inventar = ["Schlüssel", "Münze", "Trank"]\ninventar.append("Karte")\nprint(inventar)')}
+  <h4>Warum ist das für Spiele wichtig?</h4>
+  <p>In Spielen brauchst du oft Listen: Inventar, Gegner, Fragen, Highscores, Level, mögliche Antworten oder zufällige Ereignisse.</p>
+`);
+
+qs('m7').innerHTML = moduleWrap(7, `
+  <p>Funktionen sind benannte Code-Bausteine. Du definierst sie einmal und kannst sie mehrfach verwenden.</p>
+  <pre><code>def begruessung(name):
+    print("Hallo", name)
+
+begruessung("Serdar")
+begruessung("Alia")</code></pre>
+  <div class="coach"><b>Didaktischer Kern:</b> Funktionen helfen dir, Programme zu strukturieren. Statt alles untereinander zu schreiben, baust du klare Bausteine: Start, Eingabe, Prüfung, Ausgabe.</div>
+  <div class="grid2">
+    <div class="mini"><strong>Parameter</strong><span class="muted">Ein Wert, den eine Funktion bekommt.</span></div>
+    <div class="mini"><strong>return</strong><span class="muted">Eine Funktion gibt einen Wert zurück.</span></div>
+  </div>
+  <pre><code>def quadrat(zahl):
+    return zahl * zahl
+
+ergebnis = quadrat(5)
+print(ergebnis)</code></pre>
+  ${exerciseHTML('7a','mittel','Aufgabe 9: Eigene Funktion','Schreibe eine Funktion <span class="inlinecode">punkte_text(punkte)</span>, die abhängig von der Punktzahl einen Text ausgibt.', 'def punkte_text(punkte):\n    if punkte >= 10:\n        print("Stark!")\n    else:\n        print("Weiter üben!")\n\npunkte_text(12)', `[{type:'contains',value:'def',msg:'Definiere eine Funktion mit def.'},{type:'contains',value:'punkte_text',msg:'Nenne die Funktion punkte_text.'},{type:'contains',value:'if',msg:'Nutze eine Bedingung in der Funktion.'}]`, 'Du hast Funktion und Bedingung kombiniert.', 'Das Grundmuster ist: <span class="inlinecode">def name(parameter):</span>.', 'def punkte_text(punkte):\n    if punkte >= 10:\n        print("Stark!")\n    else:\n        print("Weiter üben!")\n\npunkte_text(12)')}
+`);
+
+qs('m8').innerHTML = moduleWrap(8, `
+  <p>Jetzt setzt du alles zusammen: Variablen, Eingabe, Bedingung, Schleife und optional Funktionen. Das Abschlussprojekt ist ein Zahlenratespiel.</p>
+  <div class="gameBox">
+    <div>
+      <h4>Spielidee</h4>
+      <p>Der Computer denkt sich eine Zahl zwischen 1 und 20. Der Spieler hat 5 Versuche. Nach jedem Versuch sagt das Programm, ob die gesuchte Zahl größer oder kleiner ist.</p>
+      <div class="checklist" id="projectList">
+        <label><input type="checkbox"> Ich importiere <span class="inlinecode">random</span>.</label>
+        <label><input type="checkbox"> Ich erzeuge eine Zufallszahl.</label>
+        <label><input type="checkbox"> Ich lege eine Anzahl von Versuchen fest.</label>
+        <label><input type="checkbox"> Ich nutze eine <span class="inlinecode">while</span>-Schleife.</label>
+        <label><input type="checkbox"> Ich frage mit <span class="inlinecode">input()</span> eine Zahl ab.</label>
+        <label><input type="checkbox"> Ich vergleiche mit <span class="inlinecode">if / elif / else</span>.</label>
+        <label><input type="checkbox"> Ich gebe am Ende Sieg oder Niederlage aus.</label>
+      </div>
+      <button class="btn secondary" onclick="markDone(8)">Projekt als erledigt markieren ✓</button>
+    </div>
+    <div class="gamePanel">
+      <h4 style="margin-top:0;color:white">Demo-Spiel</h4>
+      <p class="small" style="color:#cbd5e1">Hier kannst du das Zielspiel einmal ausprobieren. Danach programmierst du es in Python.</p>
+      <button class="btn" onclick="newGame()">Neues Spiel</button>
+      <div style="margin-top:12px"><input id="guess" type="number" min="1" max="20" placeholder="Zahl 1–20" onkeydown="if(event.key==='Enter')guessGame()"></div>
+      <button class="btn secondary" style="margin-top:10px" onclick="guessGame()">Raten</button>
+      <div class="gameLog" id="gameLog">Klicke auf „Neues Spiel“.</div>
+    </div>
+  </div>
+  <h4>Python-Code für das fertige Spiel</h4>
+  <pre id="finalCode"><code>import random
+
+geheime_zahl = random.randint(1, 20)
+versuche = 5
+gewonnen = False
+
+print("Ich denke an eine Zahl zwischen 1 und 20.")
+print("Du hast", versuche, "Versuche.")
+
+while versuche > 0:
+    tipp_text = input("Dein Tipp: ")
+    tipp = int(tipp_text)
+
+    if tipp == geheime_zahl:
+        print("Richtig! Du hast gewonnen.")
+        gewonnen = True
+        break
+    elif tipp < geheime_zahl:
+        print("Die gesuchte Zahl ist größer.")
+    else:
+        print("Die gesuchte Zahl ist kleiner.")
+
+    versuche = versuche - 1
+    print("Verbleibende Versuche:", versuche)
+
+if gewonnen == False:
+    print("Leider verloren. Die Zahl war", geheime_zahl)</code></pre>
+  <div class="exerciseActions"><button class="btn secondary" onclick="copyText('finalCode')">Code kopieren</button><button class="btn ghost" onclick="reveal('extensions')">Erweiterungen anzeigen</button></div>
+  <div id="extensions" class="hidden">
+    <h4>Erweiterungen für danach</h4>
+    <div class="grid2">
+      <div class="mini"><strong>Levelsystem</strong><span class="muted">Level 1: 1–20, Level 2: 1–50, Level 3: 1–100.</span></div>
+      <div class="mini"><strong>Punktesystem</strong><span class="muted">Je weniger Versuche gebraucht werden, desto mehr Punkte.</span></div>
+      <div class="mini"><strong>Highscore</strong><span class="muted">Speichere die beste Punktzahl in einer Variable oder später in einer Datei.</span></div>
+      <div class="mini"><strong>Textabenteuer</strong><span class="muted">Baue Räume, Entscheidungen und ein Inventar ein.</span></div>
+    </div>
+  </div>
+  <div class="certificate">
+    <h3>Abschluss</h3>
+    <p>Wenn du alle Module verstanden und das Spiel abgetippt hast, hast du die wichtigsten Python-Grundlagen praktisch verwendet.</p>
+    <input class="nameInput" id="certName" placeholder="Name eintragen" value="">
+    <br><button class="btn" onclick="makeCertificate()">Zertifikat anzeigen</button>
+    <div id="certOut" class="hidden" style="margin-top:18px;font-size:1.2rem"></div>
+  </div>
+`);
+
+let secret=0, tries=0, gameOver=true;
+function newGame(){secret=Math.floor(Math.random()*20)+1;tries=5;gameOver=false;qs('gameLog').textContent='Ich denke an eine Zahl zwischen 1 und 20. Du hast 5 Versuche.';qs('guess').value='';qs('guess').focus();}
+function guessGame(){
+ if(gameOver){newGame(); return;}
+ const val=Number(qs('guess').value); const log=qs('gameLog');
+ if(!val||val<1||val>20){log.textContent+='\nBitte gib eine Zahl von 1 bis 20 ein.';return;}
+ tries--;
+ if(val===secret){log.textContent+=`\n${val}: Richtig! Du hast gewonnen.`;gameOver=true;popConfetti();return;}
+ if(val<secret){log.textContent+=`\n${val}: Die gesuchte Zahl ist größer.`;} else {log.textContent+=`\n${val}: Die gesuchte Zahl ist kleiner.`;}
+ if(tries<=0){log.textContent+=`\nLeider verloren. Die Zahl war ${secret}.`;gameOver=true;} else {log.textContent+=` Noch ${tries} Versuch(e).`;}
+ qs('guess').value=''; log.scrollTop=log.scrollHeight;
+}
+function makeCertificate(){
+ const name=qs('certName').value.trim()||'Python-Lernende/r';
+ qs('certOut').classList.remove('hidden');
+ qs('certOut').innerHTML=`<strong>${htmlEscape(name)}</strong> hat die Grundlagen von Python trainiert und ein Mini-Spiel programmiert. 🎉`;
+ popConfetti();
+}
+
+navRender(); goTo(current);
+</script>
+</body>
+</html>
